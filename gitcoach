@@ -50,24 +50,6 @@ def setup():
 
 def coach():
 
-  input_file = git_toplevel_dir[:-1] + data_file
- 
-  try:
-    input_stream = open(input_file, 'r')
-  except IOError as e:
-    print ("\nData file ( $REPO/.git/coaching_data ) either doesn't exist, or isn't accessible." + \
-           "\nYou need to successfully run 'gitlearn' before you can run 'gitcoach' ." )
-    exit ( -1 )
-
- 
-  try:
-    names = pickle.load(input_stream)
-    correlations = pickle.load(input_stream)
-  except pickle.UnpicklingError as e:
-    print ("\nI can't load the coaching_data file ( .git/coaching_data ). Try deleting it and" + \
-           "\nre-running gitlearn to solve this problem.")
-    exit(-1)
-
   # OK, let's get the list of stuff we've currently modified and dare to compare.
 
   # FIXME - this next bit is ** guaranteed to break ** if you've got source files 
@@ -82,9 +64,28 @@ def coach():
 
   current_changeset = git_current_changes.strip().split("\n")
 
+  print ("Current changes: " + str(current_changeset) )
+
   if len(current_changeset) == 0:
     print ("Nothing to do, exiting.") 
     exit(0)
+
+  input_file = git_toplevel_dir[:-1] + data_file
+ 
+  try:
+    input_stream = open(input_file, 'r')
+  except IOError as e:
+    print ("\nData file ( $REPO/.git/coaching_data ) either doesn't exist, or isn't accessible." + \
+           "\nYou need to successfully run 'gitlearn' before you can run 'gitcoach' ." )
+    exit ( -1 )
+ 
+  try:
+    names = pickle.load(input_stream)
+    correlations = pickle.load(input_stream)
+  except pickle.UnpicklingError as e:
+    print ("\nI can't load the coaching_data file ( .git/coaching_data ). Try deleting it and" + \
+           "\nre-running gitlearn to solve this problem.")
+    exit(-1)
 
   total_files = len(names)
 
@@ -97,7 +98,7 @@ def coach():
         coincidence = correlations[index,c] / correlations[c,c]
 
         if coincidence < threshold  :
-          print ( coincidence + "%\t" + names[index] + "\n" )
+          print ( str(coincidence) + "%\t" + str(names[index]) + "\n" )
 
   return()
 
