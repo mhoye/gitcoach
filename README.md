@@ -21,6 +21,7 @@ file over here...
 Todo:
 
 - Makefile
+- Output from gitcoach currently incomplete, in an off-by-one looking way.
 - Add "adding a file", not just "modifying a file" as recognized thing.
     - not just pulling in your added files, but knowing that adding a
       file means you need to change the Makefile, that sort of thing.

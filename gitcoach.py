@@ -101,7 +101,7 @@ def coach():
 
         coincidence = correlations[index,c] / correlations[c,c]
 
-        if coincidence > threshold:
+        if coincidence > threshold and names[c] not in current_changeset:
           if names[c] not in suggestion_list:
             suggestion_list.append(names[c])
             suggestion_odds.append(coincidence)
@@ -111,14 +111,14 @@ def coach():
             suggestion_data[suggestion_list.index(names[c])].append(a_change)
 
 
-          # this could be done much better. Which files? Not just a number...
-
+          # An off by one error in here...
 
   print ("\nGitcoach will tell you about the files that have, historically, been frequently committed\n" +\
          "to a Git repository at the same time as the files you've already modified. It presents this\n" +\
          "information in three columns: odds of coincident commits, file of interest, and the files\n" +\
          "you're working on that may be coincident.\n\n" +\
-         "You might want to take a look at the following files:\n\n" + \
+         "You might want to take a look at the following files:\n\n" )
+
   for x in range(len(suggestion_list)):
     print ( str(suggestion_odds[x] * 100) + "%\t" + str(suggestion_list[x]) + "\t\tSuggested by: " + str(suggestion_data[x] ) )
 
