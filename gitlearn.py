@@ -74,23 +74,23 @@ def learn():
 
         # Grow the matrix and prepopulate.
 
-         correlation.resize(s,s)
-         print ("Noting file " + f)
-         for c in range(0,k):
-           correlation[k,c] = 0
-           correlation[c,k] = 0
-          
-    for f in files: 
-      x = all_files.index(f)
+         # print ("Noting file " + f + " k= " + str(k) + " s=" + str(s))
 
-      for g in files:                # FIXME: maybe don't walk the whole array twice, dummy.
-        y = all_files.index(g)
-        correlation[x,y] += 1;
+         correlation = numpy.vstack([correlation,[0]*(s)])
+         correlation = numpy.column_stack([correlation,[0]*(s+1)])
+          
+    for g in files:
+      x = all_files.index(g)
+
+      for h in files:                # FIXME: maybe don't walk the whole array twice, dummy.
+        y = all_files.index(h)
+        # print ( "correlating " + str(g) + " at [" + str(x) + "] with " + str(h) + " at [" + str(y) + "]" )
+        correlation[x,y] += 1
     
   pickle.dump(all_files, output_stream)
   pickle.dump(correlation,output_stream)
   
-  print(correlation)
+  #print(correlation)
 
   output_stream.close()
 

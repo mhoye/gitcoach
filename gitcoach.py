@@ -64,9 +64,9 @@ def coach():
 
   current_changeset = git_current_changes.strip().split("\n")
 
-  print ("Current changes: " + str(current_changeset) )
+  # print ("Current changes: " + str(current_changeset) )
 
-  if len(current_changeset) == 0:
+  if len(current_changeset) == 1 and current_changeset[0] == '' :
     print ("Nothing to do, exiting.") 
     exit(0)
 
@@ -89,16 +89,38 @@ def coach():
 
   total_files = len(names)
 
+  suggestion_list = []
+  suggestion_odds = []
+  suggestion_data = [[]] # What nonsense. Consolidate these into one data structure later.
+
   for a_change in current_changeset:
-    print ("Looking for " + a_change )
+    print ("When you have modified " + a_change )
     if a_change in names:
       index = names.index(a_change)
       for c in range(total_files):  # everything but the file you're examining.
 
         coincidence = correlations[index,c] / correlations[c,c]
 
-        if coincidence < threshold  :
-          print ( str(coincidence) + "%\t" + str(names[index]) + "\n" )
+        if coincidence > threshold:
+          if names[c] not in suggestion_list:
+            suggestion_list.append(names[c])
+            suggestion_odds.append(coincidence)
+            suggestion_data.append([a_change])
+          elif suggestion_odds[suggestion_list.index(names[c])] < coincidence:
+            suggestion_odds[suggestion_list.index(names[c])] = coincidence 
+            suggestion_data[suggestion_list.index(names[c])].append(a_change)
+
+
+          # this could be done much better. Which files? Not just a number...
+
+
+  print ("\nGitcoach will tell you about the files that have, historically, been frequently committed\n" +\
+         "to a Git repository at the same time as the files you've already modified. It presents this\n" +\
+         "information in three columns: odds of coincident commits, file of interest, and the files\n" +\
+         "you're working on that may be coincident.\n\n" +\
+         "You might want to take a look at the following files:\n\n" + \
+  for x in range(len(suggestion_list)):
+    print ( str(suggestion_odds[x] * 100) + "%\t" + str(suggestion_list[x]) + "\t\tSuggested by: " + str(suggestion_data[x] ) )
 
   return()
 
