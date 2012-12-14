@@ -7,3 +7,7 @@ uninstall:
 	if [ -e /usr/local/bin/gitcoach ] ; then rm /usr/local/bin/gitcoach ; fi
 	if [ -e /usr/local/bin/gitlearn ] ; then rm /usr/local/bin/gitlearn ; fi
 
+check:
+	true
+
+.Phony check
