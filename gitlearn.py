@@ -15,7 +15,7 @@ def get_commit_hashes():
 # gitlearn passes through any command-line options to git rev-list unless
 # it doesn't get any, in which case the default behavior is --all 
 
-  list_all_commit_hashes = "/usr/bin/git rev-list " 
+  list_all_commit_hashes = "git rev-list " 
 
   if len(sys.argv) < 2:
     list_all_commit_hashes += ( " --all" )
@@ -33,7 +33,7 @@ def get_commit_hashes():
 
 def get_files_from_hash( commit_hash ):
 
-  list_files_per_commit = "/usr/bin/git show --pretty=format: --name-only " + commit_hash
+  list_files_per_commit = "git show --pretty=format: --name-only " + commit_hash
   
   try:
     all_files_per_commit = subprocess.check_output( list_files_per_commit.split(), shell=False, universal_newlines=True)
