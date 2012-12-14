@@ -21,6 +21,10 @@ file over here...
 Todo:
 
 - Makefile
+- Command-line options for gitcoach:
+  - currently, lowerbound coincidence threshold is hardcoded at 80%.
+  - different types of commit (modified, added, etc) should be selectable
+  - Clean (parseable and/or just less verbose) output options should be available. 
 - Output from gitcoach currently incomplete, in an off-by-one looking way.
 - Add "adding a file", not just "modifying a file" as recognized thing.
     - not just pulling in your added files, but knowing that adding a
