@@ -10,4 +10,4 @@ uninstall:
 check:
 	true
 
-.Phony check
+.Phony:	check
