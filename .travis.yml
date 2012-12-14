@@ -4,11 +4,11 @@ python:
 
 before_install:
  - sudo apt-get update -qq
- - sudo apt-get install -qq libatlas-base-dev gfortran
+ - sudo apt-get install -qq python-numpy
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install:
-  - pip install --use-mirrors numpy
+#install:
+#  - pip install --use-mirrors numpy
 # # command to run tests, e.g. python setup.py test
 script: 
   - make check
