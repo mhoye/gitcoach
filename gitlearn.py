@@ -74,7 +74,7 @@ def learn():
 
         # Grow the matrix and prepopulate.
 
-         # print ("Noting file " + f + " k= " + str(k) + " s=" + str(s))
+         print ("Noting file " + str(f) )
 
          correlation = numpy.vstack([correlation,[0]*(s)])
          correlation = numpy.column_stack([correlation,[0]*(s+1)])

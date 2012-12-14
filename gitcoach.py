@@ -94,7 +94,6 @@ def coach():
   suggestion_data = [[]] # What nonsense. Consolidate these into one data structure later.
 
   for a_change in current_changeset:
-    print ("When you have modified " + a_change )
     if a_change in names:
       index = names.index(a_change)
       for c in range(total_files):  # everything but the file you're examining.
@@ -111,7 +110,11 @@ def coach():
             suggestion_data[suggestion_list.index(names[c])].append(a_change)
 
 
-          # An off by one error in here...
+          # An off by one error in here somewhere...
+
+  if len(suggestion_list) == 0:
+    print ("Nothing to see here, move along.")
+    return()
 
   print ("\nGitcoach will tell you about the files that have, historically, been frequently committed\n" +\
          "to a Git repository at the same time as the files you've already modified. It presents this\n" +\
