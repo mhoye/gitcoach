@@ -6,7 +6,9 @@ threshold = 0.8 # this is _entirely arbitrary_
 data_file        = "/.git/coaching_data"  
 git_toplevel_dir = ""
 
-git_get_current_changes = "git ls-files --full-name --modified" 
+git_get_current_changes = "git ls-files --full-name --modified"
+
+git_get_commit_changes = "git show --pretty=format:'' --name-only "
 
 def setup():
 
@@ -48,25 +50,27 @@ def setup():
 
   return()
 
-def coach():
+def coach(commit_array = None):
 
   # OK, let's get the list of stuff we've currently modified and dare to compare.
 
   # FIXME - this next bit is ** guaranteed to break ** if you've got source files 
   # with whitespace in their names. I know: who does that, right? But it's still 
   # a bug.
-
-  try: 
-    git_current_changes = subprocess.check_output( git_get_current_changes.split(), shell=False, universal_newlines=True)
+  try:
+    if commit_array != None and len(commit_array) > 0:
+      git_changes = subprocess.check_output( git_get_commit_changes.split() + commit_array, shell=False, universal_newlines=True)
+    else:
+      git_changes = subprocess.check_output( git_get_current_changes.split(), shell=False, universal_newlines=True)
   except subprocess.CalledProcessError as e:
-    print ( "\nAre you sure you're in a Git repository here? I can't find your list of current changes.")
+    print ( "\nAre you sure you're in a Git repository here? I can't find your list of changes.")
     exit ( e.returncode )
 
-  current_changeset = git_current_changes.strip().split("\n")
+  changeset = git_changes.strip().split("\n")
 
-  # print ("Current changes: " + str(current_changeset) )
+  # print ("Changes: " + str(changeset) )
 
-  if len(current_changeset) == 1 and current_changeset[0] == '' :
+  if len(changeset) == 1 and changeset[0] == '' :
     print ("Nothing to do, exiting.") 
     exit(0)
 
@@ -93,14 +97,14 @@ def coach():
   suggestion_odds = []
   suggestion_data = [[]] # What nonsense. Consolidate these into one data structure later.
 
-  for a_change in current_changeset:
+  for a_change in changeset:
     if a_change in names:
       index = names.index(a_change)
       for c in range(total_files):  # everything but the file you're examining.
 
         coincidence = correlations[index,c] / correlations[c,c]
 
-        if coincidence > threshold and names[c] not in current_changeset:
+        if coincidence > threshold and names[c] not in changeset:
           if names[c] not in suggestion_list:
             suggestion_list.append(names[c])
             suggestion_odds.append(coincidence)
@@ -140,7 +144,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 setup()
-coach()
+coach(sys.argv[1:])
 finish()
 
 exit(0)
