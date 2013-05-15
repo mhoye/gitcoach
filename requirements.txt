@@ -1,3 +1,5 @@
 # Gitcoach requirements. 
 
-#numpy>=1.6.2
+# currently: numpy
+#
+# moving to redis shortly

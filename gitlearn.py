@@ -90,7 +90,7 @@ def learn():
   pickle.dump(all_files, output_stream)
   pickle.dump(correlation,output_stream)
   
-  #print(correlation)
+  print(correlation)
 
   output_stream.close()
 
