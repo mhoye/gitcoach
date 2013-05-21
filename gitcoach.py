@@ -2,8 +2,7 @@
 
 import sys, os, shutil, subprocess, pickle, numpy, signal, re, getopt
 
-
-threshold = 0 # this is _entirely arbitrary_ 
+threshold = 0.8 # this is _entirely arbitrary_ 
 data_file        = "/.git/coaching_data"  
 git_toplevel_dir = ""
 specific_file    = []

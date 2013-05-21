@@ -2,7 +2,7 @@
 
 import sys, os, shutil, subprocess, pickle, numpy, signal, re
 
-# Using a few globals. Bad practice, I know.
+#     Using a few globals. Bad practice, I know.
 
 starting_directory = ""
 current_directory = ""
