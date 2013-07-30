@@ -10,6 +10,8 @@ git_get_current_changes = "git ls-files --full-name --modified"
 git_get_file_fullpathname = "git ls-files --full-name" 
 get_git_toplevel_dir = "git rev-parse --show-toplevel"
 
+git_get_current_changes = "git ls-files --full-name --modified"
+git_get_commit_changes = "git show --pretty=format:'' --name-only "
 
 def setup():
  
@@ -66,20 +68,23 @@ def setup():
   # do if file exists bit here.
   return()
 
-def coach():
+def coach(commit_array = None):
 
   # OK, let's get the list of stuff we've currently modified and dare to compare.
 
   # FIXME - this next bit is ** guaranteed to break ** if you've got source files 
   # with whitespace in their names. I know: who does that, right? But it's still 
   # a bug.
-
-  try: 
-    git_current_changes = subprocess.check_output( git_get_current_changes.split(), shell=False, universal_newlines=True)
+  try:
+    if commit_array != None and len(commit_array) > 0:
+      git_changes = subprocess.check_output( git_get_commit_changes.split() + commit_array, shell=False, universal_newlines=True)
+    else:
+      git_changes = subprocess.check_output( git_get_current_changes.split(), shell=False, universal_newlines=True)
   except subprocess.CalledProcessError as e:
-    print ( "\nAre you sure you're in a Git repository here? I can't find your list of current changes.")
+    print ( "\nAre you sure you're in a Git repository here? I can't find your list of changes.")
     exit ( e.returncode )
 
+<<<<<<< HEAD
   # this is a bullshit way of doing this.
   
   if len(specific_file) == 0:
@@ -89,8 +94,13 @@ def coach():
 
 
   print ("Current changes: " + str(current_changeset) )
+=======
+  changeset = git_changes.strip().split("\n")
 
-  if len(current_changeset) == 1 and current_changeset[0] == '' :
+  # print ("Changes: " + str(changeset) )
+>>>>>>> d675bda318fe7602240c846fb306e36db75b51d7
+
+  if len(changeset) == 1 and changeset[0] == '' :
     print ("Nothing to do, exiting.") 
     exit(0)
 
@@ -117,13 +127,20 @@ def coach():
   suggestion_odds = []
   suggestion_data = [[]] # What nonsense. Consolidate these into one data structure later.
 
+<<<<<<< HEAD
   for a_change in current_changeset:
     if a_change in name_table:             # may not be, if file is new
       correlation_index = name_table.index(a_change)
+=======
+  for a_change in changeset:
+    if a_change in names:
+      index = names.index(a_change)
+>>>>>>> d675bda318fe7602240c846fb306e36db75b51d7
       for c in range(total_files):  # everything but the file you're examining.
 
         coincidence = correlations_table[c,correlation_index] / correlations_table[c,c]
 
+<<<<<<< HEAD
         print ("At index " + str(correlation_index) + " -  " + str(c) + " --- " + str(coincidence) + " = " + str(correlations_table[correlation_index,c]) + " / + " + str(correlations_table[c,c]))
 
         f = name_table[c]
@@ -135,6 +152,11 @@ def coach():
               suggestion_list.index(f).append(a_change)
           else:
             suggestion_list.append(f)
+=======
+        if coincidence > threshold and names[c] not in changeset:
+          if names[c] not in suggestion_list:
+            suggestion_list.append(names[c])
+>>>>>>> d675bda318fe7602240c846fb306e36db75b51d7
             suggestion_odds.append(coincidence)
             suggestion_data.append([a_change])
           
@@ -190,7 +212,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 setup()
-coach()
+coach(sys.argv[1:])
 finish()
 
 exit(0)

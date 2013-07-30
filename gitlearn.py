@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, shutil, subprocess, pickle, numpy, signal, re
+import sys, os, shutil, subprocess, pickle, signal, re
 
 #     Using a few globals. Bad practice, I know.
 
@@ -24,7 +24,9 @@ def get_commit_hashes():
       list_all_commit_hashes += " " + arg
 
   try: 
-    all_commit_hashes = subprocess.check_output( list_all_commit_hashes.split(), shell=False, universal_newlines=True)
+    all_commit_hashes = subprocess.check_output( list_all_commit_hashes.split(),
+                                                 shell=False, 
+                                                 universal_newlines=True)
   except subprocess.CalledProcessError as e:
     print ( "\nAre you sure we're in a Git repository here? I can't get any commit hashes.")
     exit ( e.returncode )
@@ -36,9 +38,14 @@ def get_files_from_hash( commit_hash ):
   list_files_per_commit = "git show --pretty=format: --name-only " + commit_hash
   
   try:
-    all_files_per_commit = subprocess.check_output( list_files_per_commit.split(), shell=False, universal_newlines=True)
+    all_files_per_commit = subprocess.check_output( list_files_per_commit.split(), 
+                                                    shell=False, 
+                                                    universal_newlines=True)
+
   except subprocess.CalledProcessError as e:
-    print ( "\nI couldn't get a list of modified files for this commit: " + commit_hash + "\n\nI don't know what to do here, so I'm exiting.")
+    print ( "\nI couldn't get a list of modified files for this commit: " 
+            + commit_hash 
+            + "\n\nI don't know what to do here, sorry. so I'm exiting.")
     exit ( e.returncode )
 
   return all_files_per_commit.strip().split('\n')  
@@ -48,7 +55,9 @@ def learn():
 
   all_hashes = list()
   all_files = list()
-
+	
+  correlation = dict()
+	
   output_file = git_toplevel_dir[:-1] + temp_file
 
   try: 
@@ -58,35 +67,24 @@ def learn():
            "\nThis shouldn't happen; you'll have to delete it manually and re-run gitlearn." )
     exit ( -1 )
 
-  correlation = numpy.zeros(1)
 
   all_hashes = get_commit_hashes()
 
   for a_hash in all_hashes:
-    files = get_files_from_hash(a_hash)  # future feature - treat "adding a file" as a correlation candidate (i.e. Makefiles)
-   
+    files = get_files_from_hash(a_hash)  
     for f in files:
-       if f not in all_files:
+      if f not in all_files:
+          all_files.append(f)
+          print ("Noting file " + str(f) )
 
-         all_files.append(f)
-         k = all_files.index(f)
-         s = len(all_files)
-
-        # Grow the matrix and prepopulate.
-
-         print ("Noting file " + str(f) )
-
-         correlation = numpy.vstack([correlation,[0]*(s)])
-         correlation = numpy.column_stack([correlation,[0]*(s+1)])
-          
-    for g in files:
-      x = all_files.index(g)
-
-      for h in files:                # FIXME: maybe don't walk the whole array twice, dummy.
-        y = all_files.index(h)
-        # print ( "correlating " + str(g) + " at [" + str(x) + "] with " + str(h) + " at [" + str(y) + "]" )
-        correlation[x,y] += 1
-    
+      for g in files:
+        if (f != g) :
+          if '(f,g)' not in correlation:
+		        correlation[(f,g)] = 0
+		        correlation[(g,f)] = 0
+          correlation[(g,f)] += 1
+          correlation[(f,g)] += 1
+	
   pickle.dump(all_files, output_stream)
   pickle.dump(correlation,output_stream)
   
