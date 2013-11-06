@@ -11,6 +11,7 @@ import itertools as it
 import subprocess
 import pickle
 import json
+import sys
 
 
 def learn():
@@ -65,19 +66,29 @@ def coach():
     threshold = args.threshold
 
     # TODO handle error (no coaching data available)
-    with open('learning-data.pickle', 'rb') as picklefile:
-        cors, counts = pickle.load(picklefile)
+    try:
+        with open('learning-data.pickle', 'rb') as picklefile:
+            cors, counts = pickle.load(picklefile)
+    except IOError:
+        sys.stderr.write('learning-data.pickle does not exist\n')
+        sys.exit(-1)
 
     if args.file is not None:
         coach_files = [args.file]
-    if args.commit is not None:
-        # TODO handle error (not in git folder)
-        coach_files = get_commit_files(args.commit)
+    elif args.commit is not None:
+        try:
+            coach_files = get_commit_files(args.commit)
+        except NotInGitDir:
+            sys.stderr.write('Not in a git directory.\n')
+            sys.exit(-1)
     else:
-        # TODO handle error (not in git folder)
         # TODO handle error (invalid commit)
         # TODO handle error (non-existing commit)
-        coach_files = get_modified_files()
+        try:
+            coach_files = get_modified_files()
+        except NotInGitDir:
+            sys.stderr.write('Not in a git directory.\n')
+            sys.exit(-1)
 
     all_suggested_files = []
     for coachfile in coach_files:
@@ -101,14 +112,26 @@ def coach():
 def get_modified_files():
     '''Ask git which files have uncommitted changes.'''
     command = "git ls-files --full-name --modified"
-    file_list = subprocess.check_output(command.split())
+    try:
+        file_list = subprocess.check_output(command.split())
+    except subprocess.CalledProcessError:
+        # TODO hide stderr
+        raise NotInGitDir()
     return file_list.splitlines()
 
 
 def get_commit_files(commit):
     '''Ask git which files were modified in a given commit.'''
     command = "git log -1 --pretty=raw --numstat {}".format(commit)
-    git_log_out = subprocess.check_output(command.split()) + '\n'
+    try:
+        git_log_out = subprocess.check_output(command.split()) + '\n'
+    except subprocess.CalledProcessError:
+        # TODO hide stderr
+        raise NotInGitDir()
     from git2json import parse_commits
     commit = list(parse_commits(git_log_out))[0]
     return [change[2] for change in commit['changes']]
+
+
+class NotInGitDir(Exception):
+    pass
