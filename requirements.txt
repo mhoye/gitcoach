@@ -1,5 +1,0 @@
-# Gitcoach requirements. 
-
-# currently: numpy
-#
-# moving to redis shortly
