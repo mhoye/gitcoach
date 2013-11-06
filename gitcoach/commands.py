@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+'''
+Command entry points for gitcoach.
+'''
 
 import argparse
 import learn as l
 import itertools as it
 import pickle
 
+
 def learn():
+    '''Entry point for gitlearn command.'''
+    # TODO call git2json yourself instead of accepting as stdin
     import sys
     import json
     commits = json.load(sys.stdin)
@@ -23,6 +29,8 @@ def learn():
 
 
 def coach():
+    '''Entry point for gitcoach command.'''
+    # TODO add arguments from mhoye version
     parser = argparse.ArgumentParser()
     parser.add_argument('file')
     parser.add_argument('--threshold', '-t', type=float, default=0.9)
@@ -32,12 +40,12 @@ def coach():
         correlations, counts = pickle.load(picklefile)
     file_commits = counts[args.file]
     relevant_correlations = {
-        [k for k in [k1, k2] if k != args.file][0] : 1.*v/file_commits
+        ([k for k in [k1, k2] if k != coachfile][0]): 1.*v/file_commits
         for (k1, k2), v in correlations.items()
-        if args.file == k1 or args.file == k2
+        if coachfile == k1 or coachfile == k2
     }
     correlations_above_threshold = {
-        k:v
+        k: v
         for k, v in relevant_correlations.items()
         if v >= args.threshold
     }
