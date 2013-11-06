@@ -10,33 +10,55 @@ import argparse
 import itertools as it
 import subprocess
 import pickle
+import json
 
 
 def learn():
     '''Entry point for gitlearn command.'''
-    # TODO call git2json yourself instead of accepting as stdin
-    import sys
-    import json
-    commits = json.load(sys.stdin)
+    description = '''Generate coaching data for gitcoach.'''
+    parser = argparse.ArgumentParser(description=description)
+    parser.parse_args()
+
+    # Run git2json and parse the commit data.
+    gitpipe = subprocess.Popen(['git2json'], stdout=subprocess.PIPE)
+    commits = json.load(gitpipe.stdout)
+
+    # Get the files changed in each commit.
     numstats = (
         [change[2] for change in commit['changes']]
         for commit in commits
     )
+
     t1, t2 = it.tee(numstats)
     correlations = l.find_correlations(t1)
     counts = l.find_counts(t2)
+
     result = (correlations, counts)
+
     with open('learning-data.pickle', 'wb') as outfile:
         pickle.dump(result, outfile)
 
 
 def coach():
     '''Entry point for gitcoach command.'''
-    # TODO use files modified in a specific commit
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--file', '-f')
-    parser.add_argument('--commit', '-c')
-    parser.add_argument('--threshold', '-t', type=float, default=0.8)
+    description = '''Find co-dependent files based on git history.
+
+    Two files are co-dependent if they have been modified in the same
+    commits often enough.
+    '''
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(
+        '--file', '-f',
+        help='Find suggestions for a specific file'
+    )
+    parser.add_argument(
+        '--commit', '-c',
+        help='Find suggestions for files modified in a specific commit.'
+    )
+    parser.add_argument(
+        '--threshold', '-t', type=float, default=0.8,
+        help='Threshold for co-incidence ratio (default=0.8).'
+    )
     args = parser.parse_args()
     coachfile = args.file
 
