@@ -31,6 +31,8 @@ def learn():
 def coach():
     '''Entry point for gitcoach command.'''
     # TODO add arguments from mhoye version
+    # TODO use unstaged, modified files from git
+    # TODO use files modified in a commit
     parser = argparse.ArgumentParser()
     parser.add_argument('file')
     parser.add_argument('--threshold', '-t', type=float, default=0.9)
@@ -49,4 +51,5 @@ def coach():
         for k, v in relevant_correlations.items()
         if v >= args.threshold
     }
+    # TODO format in table like mhoye version.
     print correlations_above_threshold
