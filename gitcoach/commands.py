@@ -32,22 +32,29 @@ def learn():
 
 def coach():
     '''Entry point for gitcoach command.'''
-    # TODO add arguments from mhoye version
-    # TODO use files modified in a commit
+    # TODO use files modified in a specific commit
     parser = argparse.ArgumentParser()
     parser.add_argument('--file', '-f')
+    parser.add_argument('--commit', '-c')
     parser.add_argument('--threshold', '-t', type=float, default=0.8)
     args = parser.parse_args()
     coachfile = args.file
 
     threshold = args.threshold
 
+    # TODO handle error (no coaching data available)
     with open('learning-data.pickle', 'rb') as picklefile:
         cors, counts = pickle.load(picklefile)
 
     if args.file is not None:
         coach_files = [args.file]
+    if args.commit is not None:
+        # TODO handle error (not in git folder)
+        coach_files = get_commit_files(args.commit)
     else:
+        # TODO handle error (not in git folder)
+        # TODO handle error (invalid commit)
+        # TODO handle error (non-existing commit)
         coach_files = get_modified_files()
 
     all_suggested_files = []
@@ -74,3 +81,12 @@ def get_modified_files():
     command = "git ls-files --full-name --modified"
     file_list = subprocess.check_output(command.split())
     return file_list.splitlines()
+
+
+def get_commit_files(commit):
+    '''Ask git which files were modified in a given commit.'''
+    command = "git log -1 --pretty=raw --numstat {}".format(commit)
+    git_log_out = subprocess.check_output(command.split()) + '\n'
+    from git2json import parse_commits
+    commit = list(parse_commits(git_log_out))[0]
+    return [change[2] for change in commit['changes']]
