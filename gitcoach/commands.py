@@ -4,9 +4,11 @@
 Command entry points for gitcoach.
 '''
 
-import argparse
 import learn as l
+import coach as c
+import argparse
 import itertools as it
+import subprocess
 import pickle
 
 
@@ -31,25 +33,41 @@ def learn():
 def coach():
     '''Entry point for gitcoach command.'''
     # TODO add arguments from mhoye version
-    # TODO use unstaged, modified files from git
     # TODO use files modified in a commit
     parser = argparse.ArgumentParser()
-    parser.add_argument('file')
+    parser.add_argument('--file', '-f')
     parser.add_argument('--threshold', '-t', type=float, default=0.9)
     args = parser.parse_args()
     coachfile = args.file
+
+    threshold = args.threshold
+
     with open('learning-data.pickle', 'rb') as picklefile:
-        correlations, counts = pickle.load(picklefile)
-    file_commits = counts[args.file]
-    relevant_correlations = {
-        ([k for k in [k1, k2] if k != coachfile][0]): 1.*v/file_commits
-        for (k1, k2), v in correlations.items()
-        if coachfile == k1 or coachfile == k2
-    }
-    correlations_above_threshold = {
-        k: v
-        for k, v in relevant_correlations.items()
-        if v >= args.threshold
-    }
-    # TODO format in table like mhoye version.
-    print correlations_above_threshold
+        cors, counts = pickle.load(picklefile)
+
+    if args.file is not None:
+        coach_files = [args.file]
+    else:
+        coach_files = get_modified_files()
+
+    all_suggested_files = []
+    for coachfile in coach_files:
+        if coachfile in counts.keys():
+            file_commits = counts[coachfile]
+            relevant_cors = c.find_relevant_correlations(
+                cors, coachfile, file_commits)
+            above_threshold = c.filter_threshold(relevant_cors, threshold)
+            all_suggested_files.extend((cor, suggested, coachfile) for (suggested, cor) in above_threshold.items())
+        else:
+            print ('We have no data for {}'.format(coachfile))
+
+    print ('\nHere are some files you might want to look at:\n')
+    for cor, fname, suggestedby in sorted(all_suggested_files, reverse=True):
+        print ('{}\tsuggested by\t{} ({:2f})'.format(fname, suggestedby, cor))
+
+
+def get_modified_files():
+    '''Ask git which files have uncommitted changes.'''
+    command = "git ls-files --full-name --modified"
+    file_list = subprocess.check_output(command.split())
+    return file_list.splitlines()

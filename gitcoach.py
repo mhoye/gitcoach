@@ -13,6 +13,7 @@ get_git_toplevel_dir = "git rev-parse --show-toplevel"
 git_get_current_changes = "git ls-files --full-name --modified"
 git_get_commit_changes = "git show --pretty=format:'' --name-only "
 
+
 def setup():
  
   try:
