@@ -57,7 +57,10 @@ def coach():
             relevant_cors = c.find_relevant_correlations(
                 cors, coachfile, file_commits)
             above_threshold = c.filter_threshold(relevant_cors, threshold)
-            all_suggested_files.extend((cor, suggested, coachfile) for (suggested, cor) in above_threshold.items())
+            all_suggested_files.extend(
+                (cor, suggested, coachfile)
+                for (suggested, cor) in above_threshold.items()
+            )
         else:
             print ('We have no data for {}'.format(coachfile))
 
