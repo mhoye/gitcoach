@@ -36,7 +36,7 @@ def coach():
     # TODO use files modified in a commit
     parser = argparse.ArgumentParser()
     parser.add_argument('--file', '-f')
-    parser.add_argument('--threshold', '-t', type=float, default=0.9)
+    parser.add_argument('--threshold', '-t', type=float, default=0.8)
     args = parser.parse_args()
     coachfile = args.file
 
