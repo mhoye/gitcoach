@@ -12,4 +12,6 @@ python:
 install: pip install -r requirements.txt
 
 # command to run tests, e.g. python setup.py test
-script: python setup.py nosetests
+script:
+  - python setup.py nosetests
+  - flake8 gitcoach tests
