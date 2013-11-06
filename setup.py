@@ -29,6 +29,7 @@ setup(
         'gitcoach',
     ],
     package_dir={'gitcoach': 'gitcoach'},
+    entry_points={'console_scripts': ['gitlearn = gitcoach.commands:learn', 'gitcoach = gitcoach.commands:coach']},
     include_package_data=True,
     install_requires=[
     ],
