@@ -14,6 +14,9 @@ import json
 import sys
 
 
+COACHING_DATA_FILE = '.git/coaching-data.pickle'
+
+
 def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
@@ -36,7 +39,7 @@ def learn():
 
     result = (correlations, counts)
 
-    with open('learning-data.pickle', 'wb') as outfile:
+    with open(COACHING_DATA_FILE, 'wb') as outfile:
         pickle.dump(result, outfile)
 
 
@@ -67,7 +70,7 @@ def coach():
 
     # TODO handle error (no coaching data available)
     try:
-        with open('learning-data.pickle', 'rb') as picklefile:
+        with open(COACHING_DATA_FILE, 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
         sys.stderr.write('learning-data.pickle does not exist\n')
