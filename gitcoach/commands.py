@@ -91,7 +91,10 @@ def coach():
         try:
             coach_files = get_commit_files(args.commit)
         except NotInGitDir:
-            sys.stderr.write('Error: Not in a git directory.\n')
+            sys.stderr.write(
+                'Error: That commit does not exist'
+                ' or we are not in a git directory.\n'
+            )
             sys.exit(-1)
     else:
         # TODO handle error (invalid commit)
