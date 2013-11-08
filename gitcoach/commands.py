@@ -110,8 +110,10 @@ def coach():
         if coachfile in counts.keys():
             file_commits = counts[coachfile]
             relevant_cors = c.find_relevant_correlations(
-                cors, coachfile, file_commits)
-            above_threshold = c.filter_threshold(relevant_cors, threshold)
+                cors, coachfile)
+            normalized_cors = c.normalize_correlations(
+                relevant_cors, file_commits)
+            above_threshold = c.filter_threshold(normalized_cors, threshold)
             all_suggested_files.extend(
                 (cor, suggested, coachfile)
                 for (suggested, cor) in above_threshold.items()

@@ -56,9 +56,18 @@ def test_find_counts():
 def test_find_relevant_correlations():
     cors = {('f1', 'f2'): 1, ('f2', 'f3'): 2}
     expected_result = {
-        'f1': 0.25, 'f3': 0.5,
+        'f1': 1, 'f3': 2,
     }
-    result = coach.find_relevant_correlations(cors, 'f2', 4)
+    result = coach.find_relevant_correlations(cors, 'f2')
+    eq_(result, expected_result)
+
+
+def test_normalize_correlations():
+    cors = {'f2': 1, 'f3': 2}
+    expected_result = {
+        'f2': 0.25, 'f3': 0.5,
+    }
+    result = coach.normalize_correlations(cors, 4)
     eq_(result, expected_result)
 
 

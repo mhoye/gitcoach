@@ -3,7 +3,29 @@
 '''Functions related to finding codependencies.'''
 
 
-def find_relevant_correlations(correlations, coachfile, file_commits):
+def normalize_correlations(correlations, coachfile_count):
+    return {
+        k: normalize_correlation(v, coachfile_count)
+        for (k, v) in correlations.items()
+    }
+
+
+def normalize_correlation(coincidence_count, coachfile_count):
+    '''Calculate a correlation between 0 and 1 for scoring.
+
+    Essentially, we are calculating:
+
+        P(Y|X) = times_XY_committed_together/times_X_committed
+
+    Example:
+
+    >>> normalize_correlation(3, 6)
+    0.5
+    '''
+    return 1.*coincidence_count/coachfile_count
+
+
+def find_relevant_correlations(correlations, coachfile):
     '''Find which correlations in the `correlations` dictionary
     are relevant to `coachfile` and normalize their counts relative to
     file_commits.
@@ -12,7 +34,7 @@ def find_relevant_correlations(correlations, coachfile, file_commits):
     {'f1': 0.33, 'f3': 0.66}
     '''
     return {
-        ([k for k in [k1, k2] if k != coachfile][0]): 1.*v/file_commits
+        ([k for k in [k1, k2] if k != coachfile][0]): v
         for (k1, k2), v in correlations.items()
         if coachfile in [k1, k2]
     }
