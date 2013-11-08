@@ -21,7 +21,11 @@ def learn():
     parser.parse_args()
 
     # Run git2json and parse the commit data.
-    gitpipe = subprocess.Popen(['git2json'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    gitpipe = subprocess.Popen(
+        ['git2json'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
     commits = json.load(gitpipe.stdout)
 
     # Get the files changed in each commit.
@@ -72,7 +76,10 @@ def coach():
         with open(get_coachfile_path(), 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
-        sys.stderr.write('Error: Coaching data file does not exist. Try running gitlearn first.\n')
+        sys.stderr.write(
+            'Error: Coaching data file does not exist.'
+            'Try running gitlearn first.\n'
+        )
         sys.exit(-1)
     except NotInGitDir:
         sys.stderr.write('Error: Not in a git directory\n')
@@ -130,7 +137,9 @@ def get_commit_files(commit):
     command = "git log -1 --pretty=raw --numstat {}".format(commit)
     try:
         with open('/dev/null', 'w') as stderr:
-            git_log_out = subprocess.check_output(command.split(), stderr=stderr) + '\n'
+            git_log_out = subprocess.check_output(
+                command.split(),
+                stderr=stderr) + '\n'
     except subprocess.CalledProcessError:
         raise NotInGitDir()
     from git2json import parse_commits
