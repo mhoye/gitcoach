@@ -21,7 +21,7 @@ def learn():
     parser.parse_args()
 
     # Run git2json and parse the commit data.
-    gitpipe = subprocess.Popen(['git2json'], stdout=subprocess.PIPE)
+    gitpipe = subprocess.Popen(['git2json'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     commits = json.load(gitpipe.stdout)
 
     # Get the files changed in each commit.
@@ -68,7 +68,6 @@ def coach():
 
     threshold = args.threshold
 
-    # TODO handle error (no coaching data available)
     try:
         with open(get_coachfile_path(), 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
@@ -119,9 +118,9 @@ def get_modified_files():
     '''Ask git which files have uncommitted changes.'''
     command = "git ls-files --full-name --modified"
     try:
-        file_list = subprocess.check_output(command.split())
+        with open('/dev/null', 'w') as stderr:
+            file_list = subprocess.check_output(command.split(), stderr=stderr)
     except subprocess.CalledProcessError:
-        # TODO hide stderr
         raise NotInGitDir()
     return file_list.splitlines()
 
@@ -130,9 +129,9 @@ def get_commit_files(commit):
     '''Ask git which files were modified in a given commit.'''
     command = "git log -1 --pretty=raw --numstat {}".format(commit)
     try:
-        git_log_out = subprocess.check_output(command.split()) + '\n'
+        with open('/dev/null', 'w') as stderr:
+            git_log_out = subprocess.check_output(command.split(), stderr=stderr) + '\n'
     except subprocess.CalledProcessError:
-        # TODO hide stderr
         raise NotInGitDir()
     from git2json import parse_commits
     commit = list(parse_commits(git_log_out))[0]
