@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/tarmstrong/gitcoach/issues.
+Report bugs at https://github.com/mhoye/gitcoach/issues.
 
 If you are reporting a bug, please include:
 
@@ -78,7 +78,7 @@ Ready to contribute? Here's how to set up `gitcoach` for local development.
 tests, including testing other Python versions with tox::
 
     $ flake8 gitcoach tests
-	  $ python setup.py test
+    $ python setup.py nosetests
     $ tox
 
   To get flake8 and tox, just pip install them into your virtualenv. 
@@ -101,12 +101,6 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.6, 2.7, and 3.3, and for PyPy. Check 
-   https://travis-ci.org/tarmstrong/gitcoach/pull_requests
+   https://travis-ci.org/mhoye/gitcoach/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
-Tips
-----
-
-To run a subset of tests::
-
-	$ python -m unittest tests.test_gitcoach
