@@ -54,3 +54,12 @@ The `gitcoach` utility::
     --threshold THRESHOLD, -t THRESHOLD
                             Threshold for co-incidence ratio (default=0.8).
 
+
+Example output of `gitcoach`::
+
+    Here are some files you might want to look at:
+
+    travis.yml	suggested by	README.rst (0.500000)
+    tox.ini	suggested by	README.rst (0.500000)
+    setup.py	suggested by	README.rst (0.500000)
+    requirements.txt	suggested by	README.rst (0.500000)
