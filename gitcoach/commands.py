@@ -14,9 +14,6 @@ import json
 import sys
 
 
-COACHING_DATA_FILE = '.git/coaching-data.pickle'
-
-
 def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
@@ -39,7 +36,7 @@ def learn():
 
     result = (correlations, counts)
 
-    with open(COACHING_DATA_FILE, 'wb') as outfile:
+    with open(get_coachfile_path(), 'wb') as outfile:
         pickle.dump(result, outfile)
 
 
@@ -70,7 +67,7 @@ def coach():
 
     # TODO handle error (no coaching data available)
     try:
-        with open(COACHING_DATA_FILE, 'rb') as picklefile:
+        with open(get_coachfile_path(), 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
         sys.stderr.write('Coaching data file does not exist\n')
@@ -134,6 +131,18 @@ def get_commit_files(commit):
     from git2json import parse_commits
     commit = list(parse_commits(git_log_out))[0]
     return [change[2] for change in commit['changes']]
+
+
+def get_coachfile_path():
+    coaching_data_file = 'coaching-data.pickle'
+    command = 'git rev-parse --git-dir'
+    try:
+        with open('/dev/null', 'w') as stderr:
+            output = subprocess.check_output(command.split(), stderr=stderr)
+            git_dir = output.strip()
+            return git_dir + '/' + coaching_data_file
+    except subprocess.CalledProcessError:
+        raise NotInGitDir()
 
 
 class NotInGitDir(Exception):
