@@ -35,9 +35,12 @@ def learn():
     counts = l.find_counts(t2)
 
     result = (correlations, counts)
-
-    with open(get_coachfile_path(), 'wb') as outfile:
-        pickle.dump(result, outfile)
+    try:
+        with open(get_coachfile_path(), 'wb') as outfile:
+            pickle.dump(result, outfile)
+    except NotInGitDir:
+        sys.stderr.write('Not in a git directory.\n')
+        sys.exit(-1)
 
 
 def coach():
@@ -71,6 +74,9 @@ def coach():
             cors, counts = pickle.load(picklefile)
     except IOError:
         sys.stderr.write('Coaching data file does not exist\n')
+        sys.exit(-1)
+    except NotInGitDir:
+        sys.stderr.write('Not in a git directory\n')
         sys.exit(-1)
 
     if args.file is not None:
