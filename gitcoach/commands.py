@@ -39,7 +39,7 @@ def learn():
         with open(get_coachfile_path(), 'wb') as outfile:
             pickle.dump(result, outfile)
     except NotInGitDir:
-        sys.stderr.write('Not in a git directory.\n')
+        sys.stderr.write('Error: Not in a git directory.\n')
         sys.exit(-1)
 
 
@@ -73,10 +73,10 @@ def coach():
         with open(get_coachfile_path(), 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
-        sys.stderr.write('Coaching data file does not exist\n')
+        sys.stderr.write('Error: Coaching data file does not exist\n')
         sys.exit(-1)
     except NotInGitDir:
-        sys.stderr.write('Not in a git directory\n')
+        sys.stderr.write('Error: Not in a git directory\n')
         sys.exit(-1)
 
     if args.file is not None:
@@ -85,7 +85,7 @@ def coach():
         try:
             coach_files = get_commit_files(args.commit)
         except NotInGitDir:
-            sys.stderr.write('Not in a git directory.\n')
+            sys.stderr.write('Error: Not in a git directory.\n')
             sys.exit(-1)
     else:
         # TODO handle error (invalid commit)
@@ -93,7 +93,7 @@ def coach():
         try:
             coach_files = get_modified_files()
         except NotInGitDir:
-            sys.stderr.write('Not in a git directory.\n')
+            sys.stderr.write('Error: Not in a git directory.\n')
             sys.exit(-1)
 
     all_suggested_files = []
