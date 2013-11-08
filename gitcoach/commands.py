@@ -134,6 +134,7 @@ def get_modified_files():
 
 def get_commit_files(commit):
     '''Ask git which files were modified in a given commit.'''
+    # TODO git2json shouldn't make me call this command manually
     command = "git log -1 --pretty=raw --numstat {}".format(commit)
     try:
         with open('/dev/null', 'w') as stderr:
