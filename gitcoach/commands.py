@@ -73,7 +73,7 @@ def coach():
         with open(COACHING_DATA_FILE, 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
-        sys.stderr.write('learning-data.pickle does not exist\n')
+        sys.stderr.write('Coaching data file does not exist\n')
         sys.exit(-1)
 
     if args.file is not None:
