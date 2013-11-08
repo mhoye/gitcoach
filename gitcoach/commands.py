@@ -119,11 +119,13 @@ def coach():
                 for (suggested, cor) in above_threshold.items()
             )
         else:
-            print ('We have no data for {}'.format(coachfile))
+            sys.stdout.write('We have no data for {}\n'.format(coachfile))
 
-    print ('\nHere are some files you might want to look at:\n')
+    sys.stdout.write('\nHere are some files you might want to look at:\n')
     for cor, fname, suggestedby in sorted(all_suggested_files, reverse=True):
-        print ('{}\tsuggested by\t{} ({:2f})'.format(fname, suggestedby, cor))
+        sys.stdout.write(
+            '{}\tsuggested by\t{} ({:2f})'.format(fname, suggestedby, cor)
+        )
 
 
 def get_modified_files():
