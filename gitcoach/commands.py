@@ -73,7 +73,7 @@ def coach():
         with open(get_coachfile_path(), 'rb') as picklefile:
             cors, counts = pickle.load(picklefile)
     except IOError:
-        sys.stderr.write('Error: Coaching data file does not exist\n')
+        sys.stderr.write('Error: Coaching data file does not exist. Try running gitlearn first.\n')
         sys.exit(-1)
     except NotInGitDir:
         sys.stderr.write('Error: Not in a git directory\n')
