@@ -16,10 +16,11 @@ if sys.argv[-1] == 'publish':
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+from gitcoach import __version__ as VERSION
 
 setup(
     name='gitcoach',
-    version='0.1.0',
+    version=VERSION,
     description='Help you find out what files you should be changing.',
     long_description=readme + '\n\n' + history,
     author='Mike Hoye',
