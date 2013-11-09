@@ -124,7 +124,7 @@ def coach():
     sys.stdout.write('\nHere are some files you might want to look at:\n')
     for cor, fname, suggestedby in sorted(all_suggested_files, reverse=True):
         sys.stdout.write(
-            '{}\tsuggested by\t{} ({:2f})'.format(fname, suggestedby, cor)
+            '{}\tsuggested by\t{} ({:2f})\n'.format(fname, suggestedby, cor)
         )
 
 
