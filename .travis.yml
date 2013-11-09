@@ -1,14 +1,18 @@
-language: python
-python:
-  - "2.7.3"
+# Config file for automatic testing at travis-ci.org
 
-before_install:
- - sudo apt-get update -qq
- - sudo apt-get install -qq python-numpy
+language: python
+
+python:
+  - "3.3"
+  - "2.7"
+  - "pypy"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-#install:
-#  - pip install --use-mirrors numpy
-# # command to run tests, e.g. python setup.py test
-script: 
-  - make check
+install:
+  - pip install -r requirements.txt --use-mirrors
+  - pip install flake8 --use-mirrors
+
+# command to run tests, e.g. python setup.py test
+script:
+  - python setup.py nosetests
+  - flake8 gitcoach tests

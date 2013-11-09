@@ -1,13 +1,54 @@
-install:
-	chmod +x gitcoach.py gitlearn.py
-	cp gitcoach.py /usr/local/bin/gitcoach
-	cp gitlearn.py /usr/local/bin/gitlearn
+.PHONY: clean-pyc clean-build docs
 
-uninstall: 
-	if [ -e /usr/local/bin/gitcoach ] ; then rm /usr/local/bin/gitcoach ; fi
-	if [ -e /usr/local/bin/gitlearn ] ; then rm /usr/local/bin/gitlearn ; fi
+help:
+	@echo "clean-build - remove build artifacts"
+	@echo "clean-pyc - remove Python file artifacts"
+	@echo "lint - check style with flake8"
+	@echo "test - run tests quickly with the default Python"
+	@echo "testall - run tests on every Python version with tox"
+	@echo "coverage - check code coverage quickly with the default Python"
+	@echo "docs - generate Sphinx HTML documentation, including API docs"
+	@echo "release - package and upload a release"
+	@echo "sdist - package"
 
-check:
-	true
+clean: clean-build clean-pyc
 
-.Phony:	check
+clean-build:
+	rm -fr build/
+	rm -fr dist/
+	rm -fr *.egg-info
+
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+
+lint:
+	flake8 gitcoach tests
+
+test:
+	python setup.py test
+
+test-all:
+	tox
+
+coverage:
+	coverage run --source gitcoach setup.py test
+	coverage report -m
+	coverage html
+	open htmlcov/index.html
+
+docs:
+	rm -f docs/gitcoach.rst
+	rm -f docs/modules.rst
+	sphinx-apidoc -o docs/ gitcoach
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	open docs/_build/html/index.html
+
+release: clean
+	python setup.py sdist upload
+
+sdist: clean
+	python setup.py sdist
+	ls -l dist
