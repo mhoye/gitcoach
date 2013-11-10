@@ -4,6 +4,7 @@
     * not just pulling in your added files, but knowing that adding a
       file means you need to change the Makefile, that sort of thing.
 * Add more tests
+  * In particular, gitcoach/commands.py needs some love.
 * Sanity checks are missing in some places.
 * Add a gitreviewers command that looks for who should review your commit based
   on who else has committed to the files you are changing.
