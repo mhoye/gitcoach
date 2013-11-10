@@ -4,8 +4,8 @@
 Command entry points for gitcoach.
 '''
 
-import learn as l
-import coach as c
+from . import learn as l
+from . import coach as c
 import argparse
 import itertools as it
 import subprocess
@@ -26,7 +26,8 @@ def learn():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    commits = json.load(gitpipe.stdout)
+    data = gitpipe.stdout.read().decode()
+    commits = json.loads(data)
 
     # Get the files changed in each commit.
     numstats = (
@@ -136,7 +137,7 @@ def get_modified_files():
             file_list = subprocess.check_output(command.split(), stderr=stderr)
     except subprocess.CalledProcessError:
         raise NotInGitDir()
-    return file_list.splitlines()
+    return [f.decode() for f in file_list.splitlines()]
 
 
 def get_commit_files(commit):
@@ -161,7 +162,7 @@ def get_coachfile_path():
     try:
         with open('/dev/null', 'w') as stderr:
             output = subprocess.check_output(command.split(), stderr=stderr)
-            git_dir = output.strip()
+            git_dir = output.decode().strip()
             return git_dir + '/' + coaching_data_file
     except subprocess.CalledProcessError:
         raise NotInGitDir()
