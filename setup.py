@@ -33,6 +33,7 @@ setup(
     entry_points={'console_scripts': ['gitlearn = gitcoach.commands:learn', 'gitcoach = gitcoach.commands:coach']},
     include_package_data=True,
     install_requires=[
+        'git2json',
     ],
     license="BSD",
     zip_safe=False,
