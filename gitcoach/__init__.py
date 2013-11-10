@@ -3,4 +3,4 @@
 
 __author__ = 'Mike Hoye'
 __email__ = 'mhoye@mozilla.com'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
