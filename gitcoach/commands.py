@@ -6,6 +6,7 @@ Command entry points for gitcoach.
 
 from . import learn as l
 from . import coach as c
+from . import persist
 import argparse
 import itertools as it
 import subprocess
@@ -26,26 +27,21 @@ def learn():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    data = gitpipe.stdout.read().decode()
+    data = gitpipe.stdout.read().decode(errors='ignore')
     commits = json.loads(data)
 
-    # Get the files changed in each commit.
-    numstats = (
-        [change[2] for change in commit['changes']]
-        for commit in commits
-    )
+    db = persist.TrainingDB(get_coachfile_path())
+    db.connect()
+    db.init_schema()
 
-    t1, t2 = it.tee(numstats)
-    correlations = l.find_correlations(t1)
-    counts = l.find_counts(t2)
+    for commit in commits:
+        commit_id = commit['commit']
+        numstats = [change[2] for change in commit['changes']]
+        combos = it.combinations(numstats, r=2)
+        for combo in combos:
+            db.add_coincidence(combo[0], combo[1], commit_id)
 
-    result = (correlations, counts)
-    try:
-        with open(get_coachfile_path(), 'wb') as outfile:
-            pickle.dump(result, outfile)
-    except NotInGitDir:
-        sys.stderr.write('Error: Not in a git directory.\n')
-        sys.exit(-1)
+    db.cleanup()
 
 
 def coach():
