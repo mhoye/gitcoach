@@ -37,10 +37,12 @@ def learn():
     for commit in commits:
         commit_id = commit['commit']
         numstats = [change[2] for change in commit['changes']]
-        combos = it.combinations(numstats, r=2)
+        combos = it.combinations(sorted(numstats), r=2)
         for combo in combos:
+            assert combo[0] < combo[1]
             db.add_coincidence(combo[0], combo[1], commit_id)
 
+    db.create_agg_table()
     db.cleanup()
 
 
@@ -69,19 +71,6 @@ def coach():
 
     threshold = args.threshold
 
-    try:
-        with open(get_coachfile_path(), 'rb') as picklefile:
-            cors, counts = pickle.load(picklefile)
-    except IOError:
-        sys.stderr.write(
-            'Error: Coaching data file does not exist.'
-            'Try running gitlearn first.\n'
-        )
-        sys.exit(-1)
-    except NotInGitDir:
-        sys.stderr.write('Error: Not in a git directory\n')
-        sys.exit(-1)
-
     if args.file is not None:
         coach_files = [args.file]
     elif args.commit is not None:
@@ -102,12 +91,26 @@ def coach():
             sys.stderr.write('Error: Not in a git directory.\n')
             sys.exit(-1)
 
+    try:
+        coaching_db = get_coachfile_path()
+        db = persist.TrainingDB(coaching_db)
+        db.connect()
+    except NotInGitDir:
+        sys.stderr.write('Error: Not in a git directory\n')
+        sys.exit(-1)
+
+    if not db.schema_exists():
+        sys.stderr.write(
+            'Error: Coaching data file does not exist.'
+            'Try running gitlearn first.\n'
+        )
+        sys.exit(-1)
+
     all_suggested_files = []
     for coachfile in coach_files:
-        if coachfile in counts.keys():
-            file_commits = counts[coachfile]
-            relevant_cors = c.find_relevant_correlations(
-                cors, coachfile)
+        file_commits = 1.*db.file_count(coachfile)
+        if file_commits > 0:
+            relevant_cors = db.find_relevant_correlations(coachfile)
             normalized_cors = c.normalize_correlations(
                 relevant_cors, file_commits)
             above_threshold = c.filter_threshold(normalized_cors, threshold)
@@ -153,7 +156,7 @@ def get_commit_files(commit):
 
 
 def get_coachfile_path():
-    coaching_data_file = 'coaching-data.pickle'
+    coaching_data_file = 'coaching-data.sqlite'
     command = 'git rev-parse --git-dir'
     try:
         with open('/dev/null', 'w') as stderr:

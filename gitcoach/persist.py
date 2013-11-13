@@ -35,14 +35,18 @@ class TrainingDB(object):
         q = 'INSERT INTO coincidence_agg SELECT f1, f2, count(*) FROM coincidence GROUP BY f1, f2'
         self._cursor.execute(q)
 
-    def check_schema(self):
-        q = 'SELECT 1 FROM coincidence'
-        self._cursor.execute(q)
-        q = 'SELECT 1 FROM coincidence_agg'
-        self._cursor.execute(q)
+    def schema_exists(self):
+        try:
+            q = 'SELECT 1 FROM coincidence'
+            self._cursor.execute(q)
+            q = 'SELECT 1 FROM coincidence_agg'
+            self._cursor.execute(q)
+            return True
+        except sqlite3.OperationalError:
+            return False
 
     def file_count(self, fname):
-        q = 'SELECT count(*) FROM coincidence WHERE f1=? OR f2=?'
+        q = 'SELECT count(distinct commit_id) FROM coincidence WHERE f1=? OR f2=?'
         result = self._cursor.execute(q, (fname, fname))
         row = result.fetchone()
         return row[0]
