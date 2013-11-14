@@ -7,7 +7,7 @@ Code for persisting and loading training data.
 import sqlite3
 
 TABLE_COINCIDENCE = '''CREATE TABLE IF NOT EXISTS coincidence
-(f1 text, f2 text, commit_id text)'''
+(f1 text, f2 text, commit_id text, PRIMARY KEY (f1, f2, commit_id))'''
 
 TABLE_COINCIDENCE_AGG = '''
 CREATE TABLE IF NOT EXISTS coincidence_agg
