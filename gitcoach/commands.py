@@ -18,7 +18,7 @@ def learn():
     description = '''Generate coaching data for gitcoach.'''
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
-        '--max-commit-files', '-n', default=7,
+        '--max-commit-files', '-n', type=int, default=7,
         help='Commits touching more than N files are thrown away'
     )
     args = parser.parse_args()
