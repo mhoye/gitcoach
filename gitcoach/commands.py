@@ -17,7 +17,9 @@ def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
     parser = argparse.ArgumentParser(description=description)
-    parser.parse_args()
+    parser.add_argument('--max-commit-files', '-n', default=7,
+        help='Commits touching more than N files are thrown away')
+    args = parser.parse_args()
 
     # Run git2json and parse the commit data.
     gitpipe = subprocess.Popen(
@@ -35,6 +37,10 @@ def learn():
     for commit in commits:
         commit_id = commit['commit']
         numstats = [change[2] for change in commit['changes']]
+        # Ignore commits with more than X files changed.
+        numstat_length = len(numstats)
+        if numstat_length >= args.max_commit_files:
+            continue
         combos = it.combinations(sorted(numstats), r=2)
         for combo in combos:
             assert combo[0] < combo[1]
