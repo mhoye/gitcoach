@@ -27,8 +27,7 @@ def normalize_correlation(coincidence_count, coachfile_count):
 
 def find_relevant_correlations(correlations, coachfile):
     '''Find which correlations in the `correlations` dictionary
-    are relevant to `coachfile` and normalize their counts relative to
-    file_commits.
+    are relevant to `coachfile` file_commits.
 
     >>> find_relevant_correlations({('f1', 'f2'): 1, ('f2', 'f3'): 2}, 'f2', 3)
     {'f1': 0.33, 'f3': 0.66}
