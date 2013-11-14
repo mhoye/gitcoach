@@ -29,14 +29,17 @@ The easiest way to install gitcoach is through pip::
 Usage
 -----
 
-To generate the prediction data, run `gitlearn`. This might take a long time::
+To generate the prediction data, run `gitlearn`. This might take a long time, especially
+when using large values for `--max-commit-values` ::
 
-    usage: gitlearn [-h]
+    usage: gitlearn [-h] [--max-commit-files MAX_COMMIT_FILES]
 
     Generate coaching data for gitcoach.
 
     optional arguments:
-      -h, --help  show this help message and exit
+      -h, --help            show this help message and exit
+      --max-commit-files MAX_COMMIT_FILES, -n MAX_COMMIT_FILES
+                            Commits touching more than N files are thrown away
 
 The `gitcoach` utility::
 
