@@ -11,6 +11,7 @@ import itertools as it
 import subprocess
 import json
 import sys
+import clint
 
 
 def learn():
@@ -23,6 +24,7 @@ def learn():
     )
     args = parser.parse_args()
 
+    sys.stdout.write('Parsing git logs... ')
     # Run git2json and parse the commit data.
     gitpipe = subprocess.Popen(
         ['git2json'],
@@ -31,12 +33,15 @@ def learn():
     )
     data = gitpipe.stdout.read().decode(errors='ignore')
     commits = json.loads(data)
+    sys.stdout.write('Done.\n')
 
-    db = persist.TrainingDB(get_coachfile_path())
+    db_path = get_coachfile_path()
+    db = persist.TrainingDB(db_path)
     db.connect()
     db.init_schema()
 
-    for commit in commits:
+    sys.stdout.write('Creating training database at {}\n'.format(db_path))
+    for commit in clint.textui.progress.bar(commits):
         commit_id = commit['commit']
         numstats = [change[2] for change in commit['changes']]
         # Ignore commits with more than X files changed.
