@@ -4,12 +4,11 @@
 Command entry points for gitcoach.
 '''
 
-from . import learn as l
 from . import coach as c
+from . import persist
 import argparse
 import itertools as it
 import subprocess
-import pickle
 import json
 import sys
 
@@ -18,7 +17,11 @@ def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
     parser = argparse.ArgumentParser(description=description)
-    parser.parse_args()
+    parser.add_argument(
+        '--max-commit-files', '-n', type=int, default=7,
+        help='Commits touching more than N files are thrown away'
+    )
+    args = parser.parse_args()
 
     # Run git2json and parse the commit data.
     gitpipe = subprocess.Popen(
@@ -26,26 +29,27 @@ def learn():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    data = gitpipe.stdout.read().decode()
+    data = gitpipe.stdout.read().decode(errors='ignore')
     commits = json.loads(data)
 
-    # Get the files changed in each commit.
-    numstats = (
-        [change[2] for change in commit['changes']]
-        for commit in commits
-    )
+    db = persist.TrainingDB(get_coachfile_path())
+    db.connect()
+    db.init_schema()
 
-    t1, t2 = it.tee(numstats)
-    correlations = l.find_correlations(t1)
-    counts = l.find_counts(t2)
+    for commit in commits:
+        commit_id = commit['commit']
+        numstats = [change[2] for change in commit['changes']]
+        # Ignore commits with more than X files changed.
+        numstat_length = len(numstats)
+        if numstat_length >= args.max_commit_files:
+            continue
+        combos = it.combinations(sorted(numstats), r=2)
+        for combo in combos:
+            assert combo[0] < combo[1]
+            db.add_coincidence(combo[0], combo[1], commit_id)
 
-    result = (correlations, counts)
-    try:
-        with open(get_coachfile_path(), 'wb') as outfile:
-            pickle.dump(result, outfile)
-    except NotInGitDir:
-        sys.stderr.write('Error: Not in a git directory.\n')
-        sys.exit(-1)
+    db.create_agg_table()
+    db.cleanup()
 
 
 def coach():
@@ -73,19 +77,6 @@ def coach():
 
     threshold = args.threshold
 
-    try:
-        with open(get_coachfile_path(), 'rb') as picklefile:
-            cors, counts = pickle.load(picklefile)
-    except IOError:
-        sys.stderr.write(
-            'Error: Coaching data file does not exist.'
-            'Try running gitlearn first.\n'
-        )
-        sys.exit(-1)
-    except NotInGitDir:
-        sys.stderr.write('Error: Not in a git directory\n')
-        sys.exit(-1)
-
     if args.file is not None:
         coach_files = [args.file]
     elif args.commit is not None:
@@ -106,12 +97,26 @@ def coach():
             sys.stderr.write('Error: Not in a git directory.\n')
             sys.exit(-1)
 
+    try:
+        coaching_db = get_coachfile_path()
+        db = persist.TrainingDB(coaching_db)
+        db.connect()
+    except NotInGitDir:
+        sys.stderr.write('Error: Not in a git directory\n')
+        sys.exit(-1)
+
+    if not db.schema_exists():
+        sys.stderr.write(
+            'Error: Coaching data file does not exist.'
+            'Try running gitlearn first.\n'
+        )
+        sys.exit(-1)
+
     all_suggested_files = []
     for coachfile in coach_files:
-        if coachfile in counts.keys():
-            file_commits = counts[coachfile]
-            relevant_cors = c.find_relevant_correlations(
-                cors, coachfile)
+        file_commits = 1.*db.file_count(coachfile)
+        if file_commits > 0:
+            relevant_cors = db.find_relevant_correlations(coachfile)
             normalized_cors = c.normalize_correlations(
                 relevant_cors, file_commits)
             above_threshold = c.filter_threshold(normalized_cors, threshold)
@@ -157,7 +162,7 @@ def get_commit_files(commit):
 
 
 def get_coachfile_path():
-    coaching_data_file = 'coaching-data.pickle'
+    coaching_data_file = 'coaching-data.sqlite'
     command = 'git rev-parse --git-dir'
     try:
         with open('/dev/null', 'w') as stderr:
