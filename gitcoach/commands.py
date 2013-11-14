@@ -17,8 +17,10 @@ def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--max-commit-files', '-n', default=7,
-        help='Commits touching more than N files are thrown away')
+    parser.add_argument(
+        '--max-commit-files', '-n', default=7,
+        help='Commits touching more than N files are thrown away'
+    )
     args = parser.parse_args()
 
     # Run git2json and parse the commit data.
