@@ -36,7 +36,8 @@ class TrainingDB(object):
         self._cursor.execute(q, (f1, f2, commit))
 
     def create_agg_table(self):
-        q = 'INSERT INTO coincidence_agg SELECT f1, f2, count(*) FROM coincidence GROUP BY f1, f2'
+        q = '''INSERT INTO coincidence_agg
+        SELECT f1, f2, count(*) FROM coincidence GROUP BY f1, f2'''
         self._cursor.execute(q)
 
     def schema_exists(self):
@@ -50,7 +51,8 @@ class TrainingDB(object):
             return False
 
     def file_count(self, fname):
-        q = 'SELECT count(distinct commit_id) FROM coincidence WHERE f1=? OR f2=?'
+        q = '''SELECT count(distinct commit_id)
+        FROM coincidence WHERE f1=? OR f2=?'''
         result = self._cursor.execute(q, (fname, fname))
         row = result.fetchone()
         return row[0]

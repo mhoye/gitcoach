@@ -4,13 +4,11 @@
 Command entry points for gitcoach.
 '''
 
-from . import learn as l
 from . import coach as c
 from . import persist
 import argparse
 import itertools as it
 import subprocess
-import pickle
 import json
 import sys
 
