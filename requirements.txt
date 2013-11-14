@@ -1,1 +1,2 @@
 git2json>=0.2.3
+clint

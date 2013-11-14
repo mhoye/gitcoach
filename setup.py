@@ -33,6 +33,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'git2json',
+        'clint',
     ],
     license="BSD",
     zip_safe=False,
