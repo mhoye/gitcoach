@@ -24,6 +24,10 @@ class TrainingDB(object):
 
     def init_schema(self):
         '''Create the coincidence table if it doesn't exist.'''
+        q = 'DROP TABLE IF EXISTS coincidence'
+        self._cursor.execute(q)
+        q = 'DROP TABLE IF EXISTS coincidence_agg'
+        self._cursor.execute(q)
         self._cursor.execute(TABLE_COINCIDENCE)
         self._cursor.execute(TABLE_COINCIDENCE_AGG)
 
