@@ -13,6 +13,9 @@ TABLE_COINCIDENCE_AGG = '''
 CREATE TABLE IF NOT EXISTS coincidence_agg
 (f1 text, f2 text, count int)'''
 
+TABLE_LAST_COMMIT = '''CREATE TABLE IF NOT EXISTS last_commit
+(id text, PRIMARY KEY (id))'''
+
 
 class TrainingDB(object):
     def __init__(self, path):
@@ -24,12 +27,15 @@ class TrainingDB(object):
 
     def init_schema(self):
         '''Create the coincidence table if it doesn't exist.'''
+        q = 'DROP TABLE IF EXISTS last_commit'
+        self._cursor.execute(q)
         q = 'DROP TABLE IF EXISTS coincidence'
         self._cursor.execute(q)
         q = 'DROP TABLE IF EXISTS coincidence_agg'
         self._cursor.execute(q)
         self._cursor.execute(TABLE_COINCIDENCE)
         self._cursor.execute(TABLE_COINCIDENCE_AGG)
+        self._cursor.execute(TABLE_LAST_COMMIT)
 
     def add_coincidence(self, f1, f2, commit):
         q = 'INSERT INTO coincidence VALUES (?, ?, ?)'
@@ -65,6 +71,17 @@ class TrainingDB(object):
             for f1, f2, count in result
         }
         return result.fetchall()
+
+    def last_commit(self):
+        q = 'SELECT id FROM last_commit LIMIT 1'
+        result = self._cursor.execute(q)
+        return result.fetchone()
+
+    def save_last_commit(self, new_last_commit):
+        q = 'DELETE FROM last_commit'
+        self._cursor.execute(q)
+        q = 'INSERT INTO last_commit (id) VALUES (?)'
+        result = self._cursor.execute(q, (new_last_commit,))
 
     def cleanup(self):
         self._conn.commit()

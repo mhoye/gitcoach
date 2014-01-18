@@ -11,6 +11,7 @@ import itertools as it
 import subprocess
 import json
 import sys
+import os
 import clint
 
 
@@ -18,27 +19,50 @@ def learn():
     '''Entry point for gitlearn command.'''
     description = '''Generate coaching data for gitcoach.'''
     parser = argparse.ArgumentParser(description=description)
+
     parser.add_argument(
         '--max-commit-files', '-n', type=int, default=7,
         help='Commits touching more than N files are thrown away'
     )
+    parser.add_argument(
+        '--re-parse', '-r', action='store_true',
+        help='Run gitlearn on the entire git history.'
+    )
     args = parser.parse_args()
+    re_parse = args.re_parse
+
+    db_path = get_coachfile_path()
+    first_run = not os.path.isfile(db_path)
+
+    db = persist.TrainingDB(db_path)
+    db.connect()
+
+    if first_run or re_parse:
+        db.init_schema()
+
+    current_head = get_current_head()
+
+    last_commit = db.last_commit()
+    if re_parse or last_commit is None:
+        command = ['git2json']
+        last_commit = current_head
+    else:
+        commit_range = last_commit[0] + '..'
+        command = ['git2json', commit_range]
 
     sys.stdout.write('Parsing git logs... ')
     # Run git2json and parse the commit data.
     gitpipe = subprocess.Popen(
-        ['git2json'],
+        command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     data = gitpipe.stdout.read().decode(errors='ignore')
-    commits = json.loads(data)
+    if len(data) > 0:
+        commits = json.loads(data)
+    else:
+        commits = []
     sys.stdout.write('Done.\n')
-
-    db_path = get_coachfile_path()
-    db = persist.TrainingDB(db_path)
-    db.connect()
-    db.init_schema()
 
     sys.stdout.write('Creating training database at {}\n'.format(db_path))
     for commit in clint.textui.progress.bar(commits):
@@ -54,6 +78,9 @@ def learn():
             db.add_coincidence(combo[0], combo[1], commit_id)
 
     db.create_agg_table()
+
+    db.save_last_commit(current_head)
+
     db.cleanup()
 
 
@@ -177,6 +204,10 @@ def get_coachfile_path():
     except subprocess.CalledProcessError:
         raise NotInGitDir()
 
+def get_current_head():
+    command = 'git log --pretty=format:%H -1 HEAD'
+    output = subprocess.check_output(command.split())
+    return output.strip()
 
 class NotInGitDir(Exception):
     pass
